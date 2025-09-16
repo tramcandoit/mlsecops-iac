@@ -1,3 +1,12 @@
 resource "aws_s3_bucket" "dataset_s3_bucket" {
   bucket = "fraud-dataset"
 }
+
+resource "aws_ecr_repository" "ml_pipeline_repo" {
+  name                 = "mlpipeline"
+  image_tag_mutability = "MUTABLE"
+
+  image_scanning_configuration {
+    scan_on_push = true
+  }
+}
