@@ -1,5 +1,5 @@
 resource "aws_s3_bucket" "dataset_s3_bucket" {
-  bucket = "fraud-dataset"
+  bucket = "mlsecops-fraud-dataset"
 }
 
 resource "aws_ecr_repository" "ml_pipeline_repo" {
