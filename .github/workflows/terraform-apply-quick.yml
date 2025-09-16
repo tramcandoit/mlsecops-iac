@@ -1,4 +1,4 @@
-name: Terraform apply
+name: Terraform apply quick
 
 on:
   workflow_dispatch:
