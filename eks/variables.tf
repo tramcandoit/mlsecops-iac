@@ -3,25 +3,22 @@ variable "region"{
   default = "us-east-1"
 }
 
-variable "networking" {
-  type = object({
-    cidr_block      = string
-    region          = string
-    vpc_name        = string
-    azs             = list(string)
-    public_subnets  = list(string)
-    private_subnets = list(string)
-    nat_gateways    = bool
-  })
-  default = {
-    cidr_block      = "10.0.0.0/16"
-    region          = "us-east-1"
-    vpc_name        = "mlsecops-vpc"
-    azs             = ["us-east-1a", "us-east-1b"]
-    public_subnets  = ["10.0.1.0/24", "10.0.2.0/24"]
-    private_subnets = ["10.0.3.0/24", "10.0.4.0/24"]
-    nat_gateways    = true
-  }
+variable "vpc_cidr" {
+  type        = string
+  default     = "192.168.0.0/16"
+  description = "CIDR block for VPC"
+}
+
+variable "public_subnet_cidr" {
+  type        = list(string)
+  default     = ["192.168.1.0/24"]
+  description = "CIDR block for Public Subnets"
+}
+
+variable "private_subnet_cidr" {
+  type        = list(string)
+  default     = ["192.168.2.0/24"]
+  description = "CIDR block for Private Subnets"
 }
 
 variable "security_groups" {

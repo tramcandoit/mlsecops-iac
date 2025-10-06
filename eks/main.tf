@@ -1,7 +1,175 @@
-module "aws_vpc" {
-  source          = "github.com/erozedguy/AWS-VPC-terraform-module.git"
-  networking      = var.networking
-  security_groups = var.security_groups
+locals {
+  project_name = "mlsecops"
+}
+
+#---------------------------------------------------------------#
+#----------------- Create 1 VPC with 2 subnets -----------------#
+#---------------------------------------------------------------#
+
+resource "aws_vpc" "vpc" {
+  cidr_block = var.vpc_cidr
+  tags = {
+    Name = "${local.project_name}-vpc"
+  }
+}
+
+resource "aws_subnet" "public_subnet" {
+  vpc_id     = aws_vpc.vpc.id
+  count      = length(var.public_subnet_cidr)
+  cidr_block = element(var.public_subnet_cidr, count.index)
+  tags = {
+    Name = "${local.project_name}-public-subnet"
+  }
+  depends_on = [aws_vpc.vpc]
+}
+
+resource "aws_subnet" "private_subnet" {
+  vpc_id     = aws_vpc.vpc.id
+  count      = length(var.private_subnet_cidr)
+  cidr_block = element(var.private_subnet_cidr, count.index + 1)
+
+  tags = {
+    Name = "${local.project_name}-private-subnet"
+  }
+}
+
+#---------------------------------------------------------------#
+#------------------ Create 1 Internet Gateway ------------------#
+#--------------------- Attach IGW to VPC -----------------------#
+#---------------------------------------------------------------#
+
+resource "aws_internet_gateway" "igw" {
+  vpc_id = aws_vpc.vpc.id
+
+  tags = {
+    Name = "${local.project_name}-igw"
+  }
+}
+
+#---------------------------------------------------------------#
+#---------------- Create Default Security Group ----------------#
+#---------------------------------------------------------------#
+
+resource "aws_default_security_group" "default-sg" {
+  vpc_id = aws_vpc.vpc.id
+
+  ingress {
+    protocol  = -1
+    self      = true
+    from_port = 0
+    to_port   = 0
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "${local.project_name}-default-sg"
+  }
+}
+
+resource "aws_eip" "nat_eip" {
+  domain = "vpc"
+}
+
+resource "aws_nat_gateway" "natgw" {
+  allocation_id = aws_eip.nat_eip.id
+  subnet_id     = aws_subnet.public_subnet.id
+  tags = {
+    Name = "${local.project_name}-natgw"
+  }
+}
+
+#---------------------------------------------------------------#
+#------------------ Create Public Route Table ------------------#
+#------------------------ Route to IGW -------------------------#
+#---------------------------------------------------------------#
+
+resource "aws_route_table" "public_rtb" {
+  vpc_id = aws_vpc.vpc.id
+
+  route {
+    cidr_block = "0.0.0.0/0" # Destination cidr block
+    gateway_id = aws_internet_gateway.igw.id
+  }
+
+  tags = {
+    Name = "${local.project_name}-public_rtb"
+  }
+}
+
+#---------------------------------------------------------------#
+#------------------ Create Private Route Table -----------------#
+#----------------------- Route to NATGW ------------------------#
+#---------------------------------------------------------------#
+
+resource "aws_route_table" "private_rtb" {
+  vpc_id = aws_vpc.vpc.id
+
+  route {
+    cidr_block     = "0.0.0.0/0"
+    nat_gateway_id = aws_nat_gateway.natgw.id
+  }
+
+  tags = {
+    Name = "${local.project_name}-private_rtb"
+  }
+}
+
+#---------------------------------------------------------------#
+#----------------- Associate Public Route Table ----------------#
+#--------------------- to public Subnet ------------------------#
+#---------------------------------------------------------------#
+
+resource "aws_route_table_association" "public_rtb_asso" {
+  subnet_id      = aws_subnet.public_subnet.id
+  route_table_id = aws_route_table.public_rtb.id
+}
+
+#---------------------------------------------------------------#
+#---------------- Associate Private Route Table ----------------#
+#--------------------- to private Subnet -----------------------#
+#---------------------------------------------------------------#
+
+resource "aws_route_table_association" "private_rtb_asso" {
+  subnet_id      = aws_subnet.private_subnet.id
+  route_table_id = aws_route_table.private_rtb.id
+}
+
+# SECURITY GROUPS
+resource "aws_security_group" "sec_groups" {
+  for_each    = { for sec in var.security_groups : sec.name => sec }
+  name        = each.value.name
+  description = each.value.description
+  vpc_id      = aws_vpc.custom_vpc.id
+
+  dynamic "ingress" {
+    for_each = try(each.value.ingress, [])
+    content {
+      description      = ingress.value.description
+      from_port        = ingress.value.from_port
+      to_port          = ingress.value.to_port
+      protocol         = ingress.value.protocol
+      cidr_blocks      = ingress.value.cidr_blocks
+      ipv6_cidr_blocks = ingress.value.ipv6_cidr_blocks
+    }
+  }
+
+  dynamic "egress" {
+    for_each = try(each.value.egress, [])
+    content {
+      description      = egress.value.description
+      from_port        = egress.value.from_port
+      to_port          = egress.value.to_port
+      protocol         = egress.value.protocol
+      cidr_blocks      = egress.value.cidr_blocks
+      ipv6_cidr_blocks = egress.value.ipv6_cidr_blocks
+    }
+  }
 }
 
 # EKS Cluster
