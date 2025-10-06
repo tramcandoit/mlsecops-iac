@@ -78,7 +78,7 @@ resource "aws_eip" "nat_eip" {
 
 resource "aws_nat_gateway" "natgw" {
   allocation_id = aws_eip.nat_eip.id
-  subnet_id     = aws_subnet.public_subnet.id
+  subnet_id     = aws_subnet.public_subnet[0].id
   tags = {
     Name = "${local.project_name}-natgw"
   }
@@ -126,7 +126,7 @@ resource "aws_route_table" "private_rtb" {
 #---------------------------------------------------------------#
 
 resource "aws_route_table_association" "public_rtb_asso" {
-  subnet_id      = aws_subnet.public_subnet.id
+  subnet_id      = aws_subnet.public_subnet[0].id
   route_table_id = aws_route_table.public_rtb.id
 }
 
@@ -145,7 +145,7 @@ resource "aws_security_group" "sec_groups" {
   for_each    = { for sec in var.security_groups : sec.name => sec }
   name        = each.value.name
   description = each.value.description
-  vpc_id      = aws_vpc.custom_vpc.id
+  vpc_id      = aws_vpc.vpc.id
 
   dynamic "ingress" {
     for_each = try(each.value.ingress, [])
@@ -179,8 +179,8 @@ resource "aws_eks_cluster" "eks-cluster" {
   version  = var.cluster_config.version
 
   vpc_config {
-    subnet_ids         = flatten([module.aws_vpc.public_subnets_id, module.aws_vpc.private_subnets_id])
-    security_group_ids = flatten(module.aws_vpc.security_groups_id)
+    subnet_ids         = flatten([module.vpc.public_subnets_id, module.aws_vpc.private_subnets_id])
+    security_group_ids = flatten(module.vpc.security_groups_id)
   }
 
   depends_on = [
