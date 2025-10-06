@@ -36,4 +36,6 @@ jobs:
           terraform init
 
       - name: Terraform Plan
-        run: terraform plan
+        run: 
+          cd eks
+          terraform plan
