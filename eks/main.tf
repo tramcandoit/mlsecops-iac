@@ -202,7 +202,7 @@ resource "aws_eks_node_group" "node-ec2" {
   cluster_name    = aws_eks_cluster.eks-cluster.name
   node_group_name = each.value.name
   node_role_arn   = aws_iam_role.NodeGroupRole.arn
-  subnet_ids      = flatten(module.aws_vpc.private_subnets_id)
+  subnet_ids      = aws_subnet.private_subnet[*].id
 
   scaling_config {
     desired_size = try(each.value.scaling_config.desired_size, 1)
