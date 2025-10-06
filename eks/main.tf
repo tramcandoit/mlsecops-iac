@@ -136,7 +136,7 @@ resource "aws_route_table_association" "public_rtb_asso" {
 #---------------------------------------------------------------#
 
 resource "aws_route_table_association" "private_rtb_asso" {
-  subnet_id      = aws_subnet.private_subnet.id
+  subnet_id      = aws_subnet.private_subnet[0].id
   route_table_id = aws_route_table.private_rtb.id
 }
 
@@ -179,8 +179,13 @@ resource "aws_eks_cluster" "eks-cluster" {
   version  = var.cluster_config.version
 
   vpc_config {
-    subnet_ids         = flatten([module.vpc.public_subnets_id, module.aws_vpc.private_subnets_id])
-    security_group_ids = flatten(module.vpc.security_groups_id)
+    subnet_ids = flatten([
+      aws_subnet.public_subnet[*].id,
+      aws_subnet.private_subnet[*].id
+    ])
+    security_group_ids = [
+      aws_default_security_group.default-sg.id
+    ]
   }
 
   depends_on = [
