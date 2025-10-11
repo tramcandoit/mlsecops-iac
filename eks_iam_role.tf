@@ -85,3 +85,8 @@ resource "aws_iam_policy" "GitHubEKSAccess" {
     ]
   })
 }
+
+resource "aws_iam_role_policy_attachment" "GithubActionRoleAttachment" {
+  policy_arn = aws_iam_policy.GitHubEKSAccess.arn
+  role       = "arn:aws:iam::625715126488:role/GithubActions"
+}
