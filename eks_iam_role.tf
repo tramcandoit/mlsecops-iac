@@ -56,3 +56,24 @@ resource "aws_iam_role_policy_attachment" "AmazonEBSCSIDriverPolicy" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"
   role       = aws_iam_role.NodeGroupRole.name
 }
+
+resource "aws_iam_policy" "GitHubEKSAccess" {
+  name        = "GitHubEKSAccess"
+  description = "Allow GitHub OIDC role to create EKS cluster and pass roles"
+  policy      = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect = "Allow",
+        Action = [
+          "eks:CreateCluster",
+          "eks:DescribeCluster",
+          "eks:ListClusters",
+          "iam:PassRole",
+          "iam:CreateServiceLinkedRole"
+        ],
+        Resource = "*"
+      }
+    ]
+  })
+}
