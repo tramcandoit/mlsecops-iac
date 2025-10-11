@@ -9,7 +9,7 @@ terraform {
   backend "remote" {
     organization = "mlsecops"
     workspaces {
-      name = "prod-eks"
+      name = "prod"
     }
   }
 }
