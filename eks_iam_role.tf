@@ -68,6 +68,8 @@ resource "aws_iam_policy" "GitHubEKSAccess" {
         Action = [
           "eks:CreateCluster",
           "eks:DescribeCluster",
+          "eks:CreateNodegroup",
+          "eks:CreateAddon",
           "eks:ListClusters",
           "iam:PassRole",
           "iam:CreateServiceLinkedRole"
