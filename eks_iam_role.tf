@@ -70,6 +70,8 @@ resource "aws_iam_policy" "GitHubEKSAccess" {
           "eks:DescribeCluster",
           "eks:CreateNodegroup",
           "eks:CreateAddon",
+          "eks:DescribeNodegroup",
+          "eks:DescribeAddon",
           "eks:ListClusters",
           "iam:PassRole",
           "iam:CreateServiceLinkedRole"
