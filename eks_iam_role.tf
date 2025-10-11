@@ -68,14 +68,25 @@ resource "aws_iam_policy" "GitHubEKSAccess" {
         Action = [
           "eks:CreateCluster",
           "eks:DescribeCluster",
+          "eks:DeleteCluster",
           "eks:CreateNodegroup",
           "eks:CreateAddon",
+          "eks:DescribeNodegroup",
+          "eks:DescribeAddon",
+          "eks:DeleteAddon",
+          "eks:DeleteNodegroup",
           "eks:ListClusters",
           "iam:PassRole",
-          "iam:CreateServiceLinkedRole"
+          "iam:CreateServiceLinkedRole",
+          "iam:DeletePolicy"
         ],
         Resource = "*"
       }
     ]
   })
+}
+
+resource "aws_iam_role_policy_attachment" "GithubActionRoleAttachment" {
+  policy_arn = aws_iam_policy.GitHubEKSAccess.arn
+  role       = "arn:aws:iam::625715126488:role/GithubActions"
 }
