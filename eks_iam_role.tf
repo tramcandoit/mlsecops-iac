@@ -68,6 +68,7 @@ resource "aws_iam_policy" "GitHubEKSAccess" {
         Action = [
           "eks:CreateCluster",
           "eks:DescribeCluster",
+          "eks:DeleteCluster",
           "eks:CreateNodegroup",
           "eks:CreateAddon",
           "eks:DescribeNodegroup",
@@ -76,7 +77,8 @@ resource "aws_iam_policy" "GitHubEKSAccess" {
           "eks:DeleteNodegroup",
           "eks:ListClusters",
           "iam:PassRole",
-          "iam:CreateServiceLinkedRole"
+          "iam:CreateServiceLinkedRole",
+          "iam:DeletePolicy"
         ],
         Resource = "*"
       }
