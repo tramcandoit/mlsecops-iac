@@ -21,6 +21,18 @@ variable "private_subnet_cidr" {
   description = "CIDR block for Private Subnets"
 }
 
+variable "az_public" {
+  type        = string
+  default     = "us-east-1a"
+  description = "AZ for Public Subnets"
+}
+
+variable "az_private" {
+  type        = string
+  default     = "us-east-1b"
+  description = "AZ for Private Subnets"
+}
+
 variable "security_groups" {
   type = list(object({
     name        = string
