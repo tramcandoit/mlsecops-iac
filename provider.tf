@@ -9,11 +9,11 @@ terraform {
   backend "remote" {
     organization = "mlsecops"
     workspaces {
-      name = "prod"
+      name = "prod-eks"
     }
   }
 }
 
 provider "aws" {
-  region = "us-east-1"
+  region = var.region
 }
