@@ -189,8 +189,17 @@ resource "aws_eks_cluster" "eks-cluster" {
     ]
   }
 
+  access_config {
+    authentication_mode = "API_AND_CONFIG_MAP"
+  }
+
   depends_on = [
-    aws_iam_role_policy_attachment.AmazonEKSClusterPolicy
+    aws_iam_role_policy_attachment.AmazonEKSClusterPolicy,
+    aws_iam_role_policy_attachment.AmazonEKSWorkerNodePolicy,
+    aws_iam_role_policy_attachment.AmazonEC2ContainerRegistryReadOnly,
+    aws_iam_role_policy_attachment.AmazonEKS_CNI_Policy,
+    aws_iam_policy.GitHubEKSAccess,
+    aws_iam_role_policy_attachment.GithubActionRoleAttachment
   ]
 
   enabled_cluster_log_types = ["api", "audit", "authenticator","controllerManager","scheduler"]
@@ -219,14 +228,6 @@ resource "aws_eks_node_group" "node-ec2" {
   instance_types = each.value.instance_types
   capacity_type  = each.value.capacity_type
   disk_size      = each.value.disk_size
-
-  depends_on = [
-    aws_iam_role_policy_attachment.AmazonEKSWorkerNodePolicy,
-    aws_iam_role_policy_attachment.AmazonEC2ContainerRegistryReadOnly,
-    aws_iam_role_policy_attachment.AmazonEKS_CNI_Policy,
-    aws_iam_policy.GitHubEKSAccess,
-    aws_iam_role_policy_attachment.GithubActionRoleAttachment
-  ]
 }
 
 resource "aws_eks_addon" "addons" {
