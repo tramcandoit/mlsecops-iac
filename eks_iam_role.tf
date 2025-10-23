@@ -76,8 +76,9 @@ resource "aws_iam_policy" "GitHubEKSAccess" {
           "eks:DeleteAddon",
           "eks:DeleteNodegroup",
           "eks:ListClusters",
+          "eks:DescribeAccessEntry",
           "eks:CreateAccessEntry",
-          "eks:AssociateAccessPolicy",
+          "eks:ListAssociatedAccessPolicies",
           "iam:PassRole",
           "iam:CreateServiceLinkedRole",
           "iam:DeletePolicy"
