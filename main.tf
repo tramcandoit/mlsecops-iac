@@ -244,3 +244,19 @@ resource "aws_iam_openid_connect_provider" "default" {
   client_id_list  = ["sts.amazonaws.com"]
   thumbprint_list = ["9e99a48a9960b14926bb7f3b02e22da2b0ab7280"]
 }
+
+resource "aws_eks_access_entry" "cluster-access-entry" {
+  cluster_name      = aws_eks_cluster.eks-cluster.name
+  principal_arn     = "arn:aws:iam::625715126488:role/GithubActions"
+  type              = "STANDARD"
+}
+
+resource "aws_eks_access_policy_association" "cluster-access-entry-policy" {
+  cluster_name  = aws_eks_cluster.eks-cluster.name
+  policy_arn    = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
+  principal_arn = "arn:aws:iam::625715126488:role/GithubActions"
+
+  access_scope {
+    type       = "cluster"
+  }
+}
