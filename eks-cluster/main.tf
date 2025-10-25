@@ -173,6 +173,14 @@ resource "aws_security_group" "sec_groups" {
   }
 }
 
+resource "null_resource" "wait-for-iam-policy" {
+  provisioner "local-exec" {
+    interpreter = ["bash", "-c"]  
+    command = "sleep 179"
+  }
+  depends_on = [ aws_iam_role_policy_attachment.GithubActionRoleAttachment ]
+}
+
 # EKS Cluster
 resource "aws_eks_cluster" "eks-cluster" {
   name     = var.cluster_config.name
