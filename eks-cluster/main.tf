@@ -207,7 +207,8 @@ resource "aws_eks_cluster" "eks-cluster" {
     aws_iam_role_policy_attachment.AmazonEC2ContainerRegistryReadOnly,
     aws_iam_role_policy_attachment.AmazonEKS_CNI_Policy,
     aws_iam_policy.GitHubEKSAccess,
-    aws_iam_role_policy_attachment.GithubActionRoleAttachment
+    aws_iam_role_policy_attachment.GithubActionRoleAttachment,
+    null_resource.wait-for-iam-policy
   ]
 
   enabled_cluster_log_types = ["api", "audit", "authenticator","controllerManager","scheduler"]
