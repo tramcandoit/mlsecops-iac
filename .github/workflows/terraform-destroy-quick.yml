@@ -6,6 +6,9 @@ on:
       confirm:
         description: "Type DESTROY to continue proceed"
         required: true
+      module_path:
+        description: "Path to the Terraform module (e.g., eks-cluster)"
+        required: true
 
 env:
   TF_API_TOKEN: ${{ secrets.TF_API_TOKEN }}
@@ -34,10 +37,19 @@ jobs:
           cli_config_credentials_token: ${{ env.TF_API_TOKEN }}
 
       - name: Terraform Init
-        run: terraform init
+        if: ${{ github.event.inputs.module_path == 'eks-cluster' }}
+        run: |
+          cd eks-cluster
+          terraform init
 
       - name: Terraform Plan
-        run: terraform plan
+        if: ${{ github.event.inputs.module_path == 'eks-cluster' }}
+        run: |
+          cd eks-cluster
+          terraform plan
       
       - name: Terraform Destroy
-        run: terraform destroy -auto-approve
+        if: ${{ github.event.inputs.module_path == 'eks-cluster' }}
+        run: |
+          cd eks-cluster
+          terraform destroy -auto-approve
