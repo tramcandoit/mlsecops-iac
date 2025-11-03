@@ -254,6 +254,28 @@ resource "aws_iam_openid_connect_provider" "default" {
   thumbprint_list = ["9e99a48a9960b14926bb7f3b02e22da2b0ab7280"]
 }
 
+resource "kubernetes_storage_class" "default_gp3" {
+  metadata {
+    name = "gp3"
+    annotations = {
+      "storageclass.kubernetes.io/is-default-class" = "true"
+    }
+  }
+
+  storage_provisioner = "ebs.csi.aws.com"
+  reclaim_policy       = "Delete"
+  volume_binding_mode  = "WaitForFirstConsumer"
+
+  parameters = {
+    type = "gp3"
+    fsType = "ext4"
+    iops = "3000"
+    throughput = "125"
+  }
+
+  depends_on = [aws_eks_cluster.eks-cluster]
+}
+
 resource "aws_eks_access_entry" "cluster-access-entry" {
   cluster_name      = aws_eks_cluster.eks-cluster.name
   principal_arn     = "arn:aws:iam::625715126488:role/GithubActions"
