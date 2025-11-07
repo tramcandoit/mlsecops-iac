@@ -279,7 +279,13 @@ resource "kubernetes_storage_class" "default_gp3" {
     throughput = "125"
   }
 
-  depends_on = [aws_eks_cluster.eks-cluster]
+  depends_on = [
+    aws_eks_cluster.eks-cluster,
+    aws_eks_access_entry.cluster-access-entry,
+    aws_eks_access_policy_association.cluster-access-entry-policy,
+    aws_eks_addon.addons["aws-ebs-csi-driver"],
+    aws_eks_node_group.node-ec2
+  ]
 }
 
 resource "aws_eks_access_entry" "cluster-access-entry" {
