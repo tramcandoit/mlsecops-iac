@@ -14,13 +14,16 @@ resource "aws_vpc" "vpc" {
 }
 
 resource "aws_subnet" "public_subnet" {
-  vpc_id     = aws_vpc.vpc.id
-  count      = length(var.public_subnet_cidr)
-  cidr_block = element(var.public_subnet_cidr, count.index)
-  availability_zone = var.az_public
+  vpc_id            = aws_vpc.vpc.id
+  count             = length(var.public_subnet_cidr)
+  cidr_block        = element(var.public_subnet_cidr, count.index)
+  availability_zone = element(var.availability_zones_public, count.index)
+
   tags = {
-    Name = "${local.project_name}-public-subnet"
+    Name = "${local.project_name}-public-subnet-${count.index + 1}"
+    "kubernetes.io/role/elb" = "1"
   }
+
   depends_on = [aws_vpc.vpc]
 }
 
@@ -127,7 +130,8 @@ resource "aws_route_table" "private_rtb" {
 #---------------------------------------------------------------#
 
 resource "aws_route_table_association" "public_rtb_asso" {
-  subnet_id      = aws_subnet.public_subnet[0].id
+  count          = length(var.public_subnet_cidr)
+  subnet_id      = aws_subnet.public_subnet[count.index].id
   route_table_id = aws_route_table.public_rtb.id
 }
 

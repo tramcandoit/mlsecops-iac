@@ -31,6 +31,7 @@ data "aws_iam_policy_document" "aws_load_balancer_controller" {
       "ec2:DescribeCoipPools",
       "ec2:GetSecurityGroupsForVpc",
       "ec2:DescribeIpamPools",
+      "ec2:DescribeRouteTables",
       "elasticloadbalancing:DescribeLoadBalancers",
       "elasticloadbalancing:DescribeLoadBalancerAttributes",
       "elasticloadbalancing:DescribeListeners",
@@ -287,7 +288,7 @@ data "aws_iam_policy_document" "aws_load_balancer_controller" {
 
 resource "aws_iam_policy" "aws_load_balancer_controller" {
   name        = "AWSLoadBalancerControllerIAMPolicy"
-  description = "IAM policy for AWS Load Balancer Controller (v2.12.0)"
+  description = "IAM policy for AWS Load Balancer Controller"
   policy      = data.aws_iam_policy_document.aws_load_balancer_controller.json
 }
 
