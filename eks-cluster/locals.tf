@@ -21,4 +21,5 @@ data "aws_secretsmanager_secret_version" "rds_master_v" {
 
 locals {
   oidc = trimprefix(data.aws_eks_cluster.eks-cluster.identity[0].oidc[0].issuer, "https://")
+  rds_password = jsondecode(data.aws_secretsmanager_secret_version.rds_master_v.secret_string)["mlflowbackendpw"]
 }
