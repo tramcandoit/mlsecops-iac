@@ -194,7 +194,7 @@ variable "rds" {
     allocated_gb     = 20
     max_allocated_gb = 21
     db_name          = "mlflowbackend"
-    username         = "admin"
+    username         = "mlflowadmin"
     multi_az         = false
     port             = 5432
     backup_retention = 7
