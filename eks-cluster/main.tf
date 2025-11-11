@@ -352,7 +352,7 @@ resource "aws_db_instance" "mlflow-backend" {
   max_allocated_storage = var.rds.max_allocated_gb
 
   storage_type          = "gp3"
-  storage_encrypted     = true
+  storage_encrypted     = false
   publicly_accessible   = false
   multi_az              = var.rds.multi_az
 
