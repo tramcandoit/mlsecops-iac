@@ -17,7 +17,7 @@ variable "public_subnet_cidr" {
 
 variable "private_subnet_cidr" {
   type        = list(string)
-  default     = ["192.168.2.0/24"]
+  default     = ["192.168.2.0/24", "192.168.3.0/24"]
   description = "CIDR block for Private Subnets"
 }
 
@@ -28,8 +28,8 @@ variable "az_public" {
 }
 
 variable "az_private" {
-  type        = string
-  default     = "us-east-1b"
+  type        = list(string)
+  default     = ["us-east-1a","us-east-1b"]
   description = "AZ for Private Subnets"
 }
 
@@ -173,4 +173,38 @@ variable "addons" {
       version = "v1.37.0-eksbuild.1"
     }
   ]
+}
+
+#### RDS variables ####
+
+variable "rds" {
+  description = "RDS PostgreSQL settings"
+  type = object({
+    engine_version  = string
+    instance_class  = string
+    allocated_gb    = number
+    max_allocated_gb= number
+    db_name         = string
+    username        = string
+    multi_az        = bool
+    port            = number
+    backup_retention= number
+  })
+  default = {
+    engine_version   = "15.6"
+    instance_class   = "db.m1.small"
+    allocated_gb     = 20
+    max_allocated_gb = 21
+    db_name          = "mlflow-backend"
+    username         = "mlflow-backend"
+    multi_az         = false
+    port             = 5432
+    backup_retention = 7
+  }
+}
+
+variable "rds_secret_arn" {
+  description = "Secrets Manager ARN holding the RDS master password"
+  type        = string
+  default     = "arn:aws:secretsmanager:us-east-1:625715126488:secret:mlflow/backend/psqlpassword-jGhk1B"
 }

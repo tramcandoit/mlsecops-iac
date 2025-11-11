@@ -14,23 +14,22 @@ resource "aws_vpc" "vpc" {
 }
 
 resource "aws_subnet" "public_subnet" {
-  vpc_id     = aws_vpc.vpc.id
-  count      = length(var.public_subnet_cidr)
-  cidr_block = element(var.public_subnet_cidr, count.index)
+  vpc_id            = aws_vpc.vpc.id
+  count             = length(var.public_subnet_cidr)
+  cidr_block        = var.public_subnet_cidr[count.index]
   availability_zone = var.az_public
   tags = {
-    Name = "${local.project_name}-public-subnet"
+    Name = "${local.project_name}-public-subnet-${count.index}"
   }
-  depends_on = [aws_vpc.vpc]
 }
 
 resource "aws_subnet" "private_subnet" {
-  vpc_id     = aws_vpc.vpc.id
-  count      = length(var.private_subnet_cidr)
-  cidr_block = element(var.private_subnet_cidr, count.index + 1)
-  availability_zone = var.az_private
+  vpc_id            = aws_vpc.vpc.id
+  count             = length(var.private_subnet_cidr)
+  cidr_block        = var.private_subnet_cidr[count.index]
+  availability_zone = var.az_private[count.index]
   tags = {
-    Name = "${local.project_name}-private-subnet"
+    Name = "${local.project_name}-private-subnet-${count.index}"
   }
 }
 
@@ -51,7 +50,7 @@ resource "aws_internet_gateway" "igw" {
 #---------------- Create Default Security Group ----------------#
 #---------------------------------------------------------------#
 
-resource "aws_default_security_group" "default-sg" {
+resource "aws_default_security_group" "default_sg" {
   vpc_id = aws_vpc.vpc.id
 
   ingress {
@@ -127,7 +126,8 @@ resource "aws_route_table" "private_rtb" {
 #---------------------------------------------------------------#
 
 resource "aws_route_table_association" "public_rtb_asso" {
-  subnet_id      = aws_subnet.public_subnet[0].id
+  for_each       = { for idx, s in aws_subnet.public_subnet : idx => s }
+  subnet_id      = each.value.id
   route_table_id = aws_route_table.public_rtb.id
 }
 
@@ -137,7 +137,8 @@ resource "aws_route_table_association" "public_rtb_asso" {
 #---------------------------------------------------------------#
 
 resource "aws_route_table_association" "private_rtb_asso" {
-  subnet_id      = aws_subnet.private_subnet[0].id
+  for_each       = { for idx, s in aws_subnet.private_subnet : idx => s }
+  subnet_id      = each.value.id
   route_table_id = aws_route_table.private_rtb.id
 }
 
@@ -188,14 +189,14 @@ resource "aws_eks_cluster" "eks-cluster" {
   version  = var.cluster_config.version
 
   vpc_config {
-    subnet_ids = flatten([
-      aws_subnet.public_subnet[*].id,
-      aws_subnet.private_subnet[*].id
-    ])
-    security_group_ids = [
-      aws_default_security_group.default-sg.id
-    ]
-  }
+  subnet_ids = flatten([
+    aws_subnet.public_subnet[*].id,
+    aws_subnet.private_subnet[*].id
+  ])
+  security_group_ids = [
+    aws_default_security_group.default_sg.id
+  ]
+}
 
   access_config {
     authentication_mode = "API_AND_CONFIG_MAP"
@@ -303,3 +304,40 @@ resource "aws_eks_access_policy_association" "cluster-access-entry-policy" {
     type       = "cluster"
   }
 }
+
+# resource "aws_db_instance" "mlflow-backend" {
+#   identifier            = "${local.project_name}-mlflow-backend"
+#   engine                = "postgres"
+#   engine_version        = var.rds.engine_version
+#   instance_class        = var.rds.instance_class
+
+#   db_name               = var.rds.db_name
+#   username              = var.rds.username
+#   password              = local.rds_password
+
+#   port                  = var.rds.port
+#   allocated_storage     = var.rds.allocated_gb
+#   max_allocated_storage = var.rds.max_allocated_gb
+
+#   storage_type          = "gp3"
+#   storage_encrypted     = true
+#   publicly_accessible   = false
+#   multi_az              = var.rds.multi_az
+
+#   vpc_security_group_ids = [aws_security_group.rds_pg.id]
+#   db_subnet_group_name   = aws_db_subnet_group.mlflow.name
+
+#   backup_retention_period    = var.rds.backup_retention
+#   auto_minor_version_upgrade = true
+#   copy_tags_to_snapshot      = true
+#   deletion_protection        = false
+#   skip_final_snapshot        = true
+#   apply_immediately          = true
+
+#   tags = {
+#     Name        = "${local.project_name}-mlflow-backend"
+#     Project     = local.project_name
+#   }
+
+#   depends_on = [aws_db_subnet_group.mlflow]
+# }
