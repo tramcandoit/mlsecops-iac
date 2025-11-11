@@ -190,7 +190,7 @@ variable "rds" {
     backup_retention= number
   })
   default = {
-    instance_class   = "db.m1.small"
+    instance_class   = "db.t3.small"
     allocated_gb     = 20
     max_allocated_gb = 21
     db_name          = "mlflow-backend"
