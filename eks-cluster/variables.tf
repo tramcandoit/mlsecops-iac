@@ -193,7 +193,7 @@ variable "rds" {
     instance_class   = "db.t3.small"
     allocated_gb     = 20
     max_allocated_gb = 21
-    db_name          = "mlflow-backend"
+    db_name          = "mlflowbackend"
     username         = "admin"
     multi_az         = false
     port             = 5432
