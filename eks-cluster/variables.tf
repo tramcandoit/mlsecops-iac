@@ -180,7 +180,6 @@ variable "addons" {
 variable "rds" {
   description = "RDS PostgreSQL settings"
   type = object({
-    engine_version  = string
     instance_class  = string
     allocated_gb    = number
     max_allocated_gb= number
@@ -191,12 +190,11 @@ variable "rds" {
     backup_retention= number
   })
   default = {
-    engine_version   = "15.6"
     instance_class   = "db.m1.small"
     allocated_gb     = 20
     max_allocated_gb = 21
     db_name          = "mlflow-backend"
-    username         = "mlflow-backend"
+    username         = "admin"
     multi_az         = false
     port             = 5432
     backup_retention = 7
