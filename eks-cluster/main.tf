@@ -338,7 +338,7 @@ resource "aws_security_group" "rds_pg" {
 
 
 resource "aws_db_instance" "mlflow-backend" {
-  identifier            = "${local.project_name}-mlflow-backend"
+  identifier            = "${local.project_name}mlflowbackend"
   engine                = "postgres"
   #engine_version        = var.rds.engine_version
   instance_class        = var.rds.instance_class
