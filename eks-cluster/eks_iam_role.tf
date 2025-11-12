@@ -83,6 +83,10 @@ resource "aws_iam_policy" "GitHubEKSAccess" {
           "eks:ListAssociatedAccessPolicies",
           "eks:AssociateAccessPolicy",
           "eks:DisassociateAccessPolicy",
+          "eks:CreatePodIdentityAssociation",
+          "eks:DescribePodIdentityAssociation",
+          "eks:DeletePodIdentityAssociation",
+          "eks:ListPodIdentityAssociations",
           "iam:PassRole",
           "iam:CreateServiceLinkedRole",
           "iam:DeletePolicy"
