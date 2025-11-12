@@ -48,6 +48,17 @@ jobs:
           cd eks-cluster
           terraform plan
       
+      - name: Remove Helm releases from state
+        if: ${{ github.event.inputs.module_path == 'eks-cluster' }}
+        run: |
+          cd eks-cluster
+          terraform state rm helm_release.cert_manager || true
+          terraform state rm helm_release.metrics_server || true
+          terraform state rm helm_release.cluster_autoscaler || true
+          terraform state rm helm_release.external_nginx || true
+          terraform state rm helm_release.aws_lbc || true
+        continue-on-error: true
+      
       - name: Terraform Destroy
         if: ${{ github.event.inputs.module_path == 'eks-cluster' }}
         run: |
