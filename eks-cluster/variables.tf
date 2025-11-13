@@ -11,7 +11,7 @@ variable "vpc_cidr" {
 
 variable "public_subnet_cidr" {
   type        = list(string)
-  default     = ["192.168.1.0/24"]
+  default     = ["192.168.1.0/24", "192.168.4.0/24"]
   description = "CIDR block for Public Subnets"
 }
 
@@ -22,8 +22,8 @@ variable "private_subnet_cidr" {
 }
 
 variable "az_public" {
-  type        = string
-  default     = "us-east-1a"
+  type        = list(string)
+  default     = ["us-east-1a", "us-east-1b"]
   description = "AZ for Public Subnets"
 }
 
@@ -166,11 +166,15 @@ variable "addons" {
     },
     {
       name    = "coredns"
-      version = "v1.11.3-eksbuild.1" 
+      version = "v1.11.3-eksbuild.1"
     },
     {
       name    = "aws-ebs-csi-driver"
       version = "v1.37.0-eksbuild.1"
+    },
+    {
+      name    = "eks-pod-identity-agent"
+      version = "v1.2.0-eksbuild.1"
     }
   ]
 }

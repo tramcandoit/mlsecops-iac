@@ -57,6 +57,16 @@ resource "aws_iam_role_policy_attachment" "AmazonEBSCSIDriverPolicy" {
   role       = aws_iam_role.NodeGroupRole.name
 }
 
+resource "aws_iam_policy" "NodeGroupELBPolicy" {
+  name   = "EKSNodeGroupELBPolicy"
+  policy = file("./AWSLoadBalancerControllerIAMPolicy.json")
+}
+
+resource "aws_iam_role_policy_attachment" "NodeGroupELBPolicyAttachment" {
+  policy_arn = aws_iam_policy.NodeGroupELBPolicy.arn
+  role       = aws_iam_role.NodeGroupRole.name
+}
+
 resource "aws_iam_policy" "GitHubEKSAccess" {
   name        = "GitHubEKSAccess"
   description = "Allow GitHub OIDC role to create EKS cluster and pass roles"
@@ -83,6 +93,10 @@ resource "aws_iam_policy" "GitHubEKSAccess" {
           "eks:ListAssociatedAccessPolicies",
           "eks:AssociateAccessPolicy",
           "eks:DisassociateAccessPolicy",
+          "eks:CreatePodIdentityAssociation",
+          "eks:DescribePodIdentityAssociation",
+          "eks:DeletePodIdentityAssociation",
+          "eks:ListPodIdentityAssociations",
           "iam:PassRole",
           "iam:CreateServiceLinkedRole",
           "iam:DeletePolicy"

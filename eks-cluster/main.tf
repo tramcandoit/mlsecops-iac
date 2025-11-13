@@ -17,9 +17,11 @@ resource "aws_subnet" "public_subnet" {
   vpc_id            = aws_vpc.vpc.id
   count             = length(var.public_subnet_cidr)
   cidr_block        = var.public_subnet_cidr[count.index]
-  availability_zone = var.az_public
+  availability_zone = var.az_public[count.index]
   tags = {
-    Name = "${local.project_name}-public-subnet-${count.index}"
+    Name                     = "${local.project_name}-public-subnet-${count.index}"
+    "kubernetes.io/role/elb" = "1"
+    "kubernetes.io/cluster/${var.cluster_config.name}" = "shared"
   }
 }
 
@@ -29,7 +31,9 @@ resource "aws_subnet" "private_subnet" {
   cidr_block        = var.private_subnet_cidr[count.index]
   availability_zone = var.az_private[count.index]
   tags = {
-    Name = "${local.project_name}-private-subnet-${count.index}"
+    Name                              = "${local.project_name}-private-subnet-${count.index}"
+    "kubernetes.io/role/internal-elb" = "1"
+    "kubernetes.io/cluster/${var.cluster_config.name}" = "shared"
   }
 }
 
