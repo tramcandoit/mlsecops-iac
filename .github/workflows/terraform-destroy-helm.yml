@@ -1,0 +1,71 @@
+name: Cleanup Kubernetes Resources Before Destroy
+
+on:
+  workflow_dispatch:
+  workflow_call:
+
+jobs:
+  cleanup-k8s:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
+        with:
+          fetch-depth: 0
+          ref: ${{ github.ref }}
+
+      - name: Install kubectl
+        uses: azure/setup-kubectl@776406bce94f63e41d621b960d78ee25c8b76ede
+
+      - name: Install Helm
+        uses: azure/setup-helm@1a275c3b69536ee54be43f2070a358922e12c8d4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@a03048d87541d1d9fcf2ecf528a4a65ba9bd7838
+        with:
+          role-to-assume: arn:aws:iam::625715126488:role/GithubActions
+          aws-region: us-east-1
+
+      - name: Update kubeconfig for EKS
+        run: |
+          aws eks update-kubeconfig \
+            --name mlsecops-eks-cluster \
+            --region us-east-1
+          echo "Kubeconfig updated for mlsecops-eks-cluster"
+
+      - name: Verify cluster access
+        run: |
+          echo "Checking cluster nodes..."
+          kubectl get nodes
+          echo ""
+          echo "Successfully connected to EKS cluster"
+
+      - name: Delete Ingress Resources
+        run: |
+          kubectl delete ingress --all-namespaces --all --ignore-not-found=true
+          sleep 10
+
+      - name: Delete LoadBalancer Services
+        run: |
+          kubectl delete svc --all-namespaces --field-selector spec.type=LoadBalancer --ignore-not-found=true
+          sleep 60
+
+      - name: Delete All Helm Releases
+        run: |
+          helm list -A
+          helm list -A -o json | jq -r '.[] | "\(.name) \(.namespace)"' | while read name namespace; do
+            echo "Uninstalling $name from namespace $namespace..."
+            helm uninstall $name -n $namespace || true
+          done
+
+      - name: Verify cleanup
+        run: |
+          echo "Checking remaining Helm releases..."
+          helm list -A || echo "No Helm releases found"
+          echo ""
+          echo "Checking remaining LoadBalancer services..."
+          kubectl get svc --all-namespaces --field-selector spec.type=LoadBalancer || echo "No LoadBalancer services found"

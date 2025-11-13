@@ -14,8 +14,16 @@ env:
   TF_API_TOKEN: ${{ secrets.TF_API_TOKEN }}
 
 jobs:
+  cleanup-k8s:
+    if: ${{ github.event.inputs.confirm == 'DESTROY' }}
+    uses: ./.github/workflows/terraform-destroy-helm.yml
+    permissions:
+      id-token: write
+      contents: read
+
   terraform-plan:
     if: ${{ github.event.inputs.confirm == 'DESTROY' }}
+    needs: cleanup-k8s
     runs-on: ubuntu-24.04
     permissions:
       id-token: write
