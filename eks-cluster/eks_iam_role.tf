@@ -95,6 +95,8 @@ resource "aws_iam_policy" "GitHubEKSAccess" {
           "eks:DescribeAddon",
           "eks:DeleteAddon",
           "eks:DeleteNodegroup",
+          "eks:UpdateNodegroupConfig",
+          "eks:UpdateNodegroupVersion",
           "eks:ListClusters",
           "eks:DescribeAccessEntry",
           "eks:CreateAccessEntry",
