@@ -323,11 +323,19 @@ resource "aws_security_group" "rds_pg" {
   vpc_id      = aws_vpc.vpc.id
 
   ingress {
-    description     = "PostgreSQL from EKS Cluster SG"
+    description     = "PostgreSQL from EKS Default SG"
     from_port       = 5432
     to_port         = 5432
     protocol        = "tcp"
     security_groups = [aws_default_security_group.default_sg.id]
+  }
+
+  ingress {
+    description     = "PostgreSQL from EKS Cluster SG"
+    from_port       = 5432
+    to_port         = 5432
+    protocol        = "tcp"
+    security_groups = [aws_eks_cluster.eks-cluster.vpc_config[0].cluster_security_group_id]
   }
 
   egress {

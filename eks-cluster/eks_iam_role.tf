@@ -67,6 +67,16 @@ resource "aws_iam_role_policy_attachment" "NodeGroupELBPolicyAttachment" {
   role       = aws_iam_role.NodeGroupRole.name
 }
 
+resource "aws_iam_role_policy_attachment" "AmazonS3FullAccess" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonS3FullAccess"
+  role       = aws_iam_role.NodeGroupRole.name
+}
+
+resource "aws_iam_role_policy_attachment" "AmazonRDSFullAccess" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonRDSFullAccess"
+  role       = aws_iam_role.NodeGroupRole.name
+}
+
 resource "aws_iam_policy" "GitHubEKSAccess" {
   name        = "GitHubEKSAccess"
   description = "Allow GitHub OIDC role to create EKS cluster and pass roles"
@@ -83,8 +93,11 @@ resource "aws_iam_policy" "GitHubEKSAccess" {
           "eks:CreateAddon",
           "eks:DescribeNodegroup",
           "eks:DescribeAddon",
+          "eks:DescribeUpdate",
           "eks:DeleteAddon",
           "eks:DeleteNodegroup",
+          "eks:UpdateNodegroupConfig",
+          "eks:UpdateNodegroupVersion",
           "eks:ListClusters",
           "eks:DescribeAccessEntry",
           "eks:CreateAccessEntry",
