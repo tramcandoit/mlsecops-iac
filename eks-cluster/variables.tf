@@ -117,8 +117,8 @@ variable "node_groups" {
   }))
   default = [
     {
-      name           = "t2-small-standard"
-      instance_types = ["t2.small"]
+      name           = "t3-small-standard"
+      instance_types = ["t3.small"]
       ami_type       = "AL2_x86_64"
       capacity_type  = "ON_DEMAND"
       disk_size      = 10
@@ -132,8 +132,8 @@ variable "node_groups" {
       }
     },
     {
-      name           = "t2-small-spot"
-      instance_types = ["t2.small"]
+      name           = "t3-small-spot"
+      instance_types = ["t3.small"]
       ami_type       = "AL2_x86_64"
       capacity_type  = "SPOT"
       disk_size      = 10
