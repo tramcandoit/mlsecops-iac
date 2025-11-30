@@ -77,6 +77,11 @@ resource "aws_iam_role_policy_attachment" "AmazonRDSFullAccess" {
   role       = aws_iam_role.NodeGroupRole.name
 }
 
+resource "aws_iam_role_policy_attachment" "AmazonDynamoDBReadOnlyAccess" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonDynamoDBReadOnlyAccess"
+  role       = aws_iam_role.NodeGroupRole.name
+}
+
 resource "aws_iam_policy" "GitHubEKSAccess" {
   name        = "GitHubEKSAccess"
   description = "Allow GitHub OIDC role to create EKS cluster and pass roles"
