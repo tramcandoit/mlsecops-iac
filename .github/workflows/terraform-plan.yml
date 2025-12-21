@@ -38,6 +38,27 @@ jobs:
             eks-cluster:
               - 'eks-cluster/*'
 
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Install Checkov
+        run: |
+          python -m pip install --upgrade pip
+          pip install checkov
+
+      - name: Run Checkov Scan
+        run: |
+          checkov --directory eks-cluster --output-file checkov-results.sarif --output sarif --download-external-modules true || true
+
+      - name: Upload results
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: checkov-results.sarif
+        env:
+          GITHUB_REF: refs/heads/master
+             
       - name: Terraform Init
         if: steps.changes.outputs.eks-cluster == 'true'
         run: |
